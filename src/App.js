@@ -13,8 +13,15 @@ import TableRow from '@material-ui/core/TableRow';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import withStyles from '@material-ui/core/styles/withStyles';
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import JSZip from 'jszip';
 import './App.css';
+
+const theme = createMuiTheme({
+  typography: {
+    useNextVariants: true,
+  },
+});
 
 const styles = (theme) => ({
   appBar: {
@@ -53,6 +60,10 @@ const styles = (theme) => ({
   }
 });
 
+const takeoutNameRe = (name) => { 
+  return /takeout-20[1-2]\d[0-1]\d[0-3]\dT[0-2]\d[0-6]\d[0-6]\dZ-\d{3}\.zip/.test(name);
+}
+
 class App extends Component {
   
   constructor(props) {
@@ -61,43 +72,54 @@ class App extends Component {
       display_report: false,
       total_queries: 0,
       min_date: new Date(),
-      total_by_date: {}
+      total_by_date: {},
+      missing_activity_json: false,
+      invalid_file_name: false
     };
     this.extractAggregatesFromZip = this.extractAggregatesFromZip.bind(this);
   }
   
   async extractAggregatesFromZip(file) {
-    this.setState({zipfile: file.name});
     
-    const parsed = await JSZip.loadAsync(file)
-    .then( (zip) => {
-      const zipobject = zip.file('Takeout/My Activity/Search/MyActivity.json');
-      return zipobject.async("string")
-                      .then(JSON.parse)
-                      .then((data) => {
-                        return data.filter(
-                          (item) => { return item.title.startsWith('Searched for ') }
-                        );
-                      })
-                      .catch((err) => {
-                        console.log(err);
-                      });
-    }, (err) => {console.log(err);});
-
-    const minDate = parsed.reduce((min, item) => item.time < min ? item.time : min, parsed[0].time);
+    const isValidTakeoutName = takeoutNameRe(file.name);
+    
+    this.setState({invalid_file_name: true});
+    
+    if (isValidTakeoutName) {
+      const parsed = await JSZip.loadAsync(file)
+      .then( (zip) => {
+        const zipobject = zip.file('Takeout/My Activity/Search/MyActivity.json');
+        
+        return zipobject.async("string")
+        .then(JSON.parse)
+        .then((data) => {
+          return data.filter(
+            (item) => { return item.title.startsWith('Searched for ') }
+          );
+        })
+        .catch((err) => {
+          this.setState({missing_activity_json: true});
+          console.log(err);
+        });
+      }, (err) => {console.log(err);});
       
-    const sumByDate = parsed.reduce(
-      (acc, item) => ({ ...acc, [item['time'].substring(0,10)]: (acc[item['time'].substring(0,10)] || 0) + 1 }),
-      {}
-    );
+      const minDate = parsed.reduce((min, item) => item.time < min ? item.time : min, parsed[0].time);
+      
+      const sumByDate = parsed.reduce(
+        (acc, item) => ({ ...acc, [item['time'].substring(0,10)]: (acc[item['time'].substring(0,10)] || 0) + 1 }),
+        {}
+      );
+      
+      this.setState({
+        total_queries: parsed.length,
+        min_date: new Date(Date.parse(minDate)),
+        total_by_date: sumByDate,
+        display_report: true
+      });
+    } else {
+      this.setState({display_report: false});
+    }
     
-    this.setState({
-      total_queries: parsed.length,
-      min_date: new Date(Date.parse(minDate)),
-      total_by_date: sumByDate,
-      display_report: true
-    });
-
   }
   
   render() {
@@ -105,6 +127,7 @@ class App extends Component {
     return (
       <React.Fragment>
         <CssBaseline />
+        <MuiThemeProvider theme={theme}>
         <AppBar position="absolute" color="default" className={classes.appBar}>
           <Toolbar>
             <Typography variant="h6" color="inherit" noWrap>
@@ -117,7 +140,7 @@ class App extends Component {
             <Typography component="h1" variant="h4" align="center" gutterBottom>
             Extract aggregate data from Takeout
             </Typography>
-            <Typography variant="body1" align="center" color="textSecondary">
+            <Typography variant="body2" align="center" color="textSecondary">
             Quickly build an effective pricing table for your potential customers with this layout.
             It&apos;s built with default Material-UI components with little customization.
             </Typography>
@@ -138,10 +161,10 @@ class App extends Component {
           </Paper>
           <Grow in={this.state.display_report}>
           <Paper className={classes.paper}>
-            <Typography variant="body1" align="left">
+            <Typography variant="body2" align="left">
               Total number of queries: {this.state.total_queries}
             </Typography>
-            <Typography variant="body1" align="left">
+            <Typography variant="body2" align="left">
               Min date: {this.state.min_date.toLocaleDateString('en-GB', {day: 'numeric', month: 'short', year: 'numeric'})}
             </Typography>
             <Table className={classes.table}>
@@ -166,6 +189,7 @@ class App extends Component {
           </Paper>
           </Grow>
         </main>
+      </MuiThemeProvider>
       </React.Fragment>
     );
   }
