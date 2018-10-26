@@ -1,21 +1,21 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+
 import AppBar from '@material-ui/core/AppBar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
+import ErrorIcon from '@material-ui/icons/Error';
 import Grow from '@material-ui/core/Grow';
 import Paper from '@material-ui/core/Paper';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
+import SnackbarContent from '@material-ui/core/SnackbarContent';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import withStyles from '@material-ui/core/styles/withStyles';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+
 import JSZip from 'jszip';
-import './App.css';
+
+import {ReportAggregates} from './ReportAggregates';
 
 const theme = createMuiTheme({
   typography: {
@@ -53,10 +53,14 @@ const styles = (theme) => ({
     marginTop: theme.spacing.unit,
   },
   submit: {
-    marginTop: theme.spacing.unit * 3,
+    marginTop: theme.spacing.unit * 2,
   },
   table: {
     minWidth: 400,
+  },
+  error: {
+    marginTop: theme.spacing.unit * 2,
+    backgroundColor: theme.palette.error.light,
   }
 });
 
@@ -64,26 +68,24 @@ const takeoutNameRe = (name) => {
   return /takeout-20[1-2]\d[0-1]\d[0-3]\dT[0-2]\d[0-6]\d[0-6]\dZ-\d{3}\.zip/.test(name);
 }
 
+const formatDate = (date) => {
+  return date.toLocaleDateString('en-GB', {day: 'numeric', month: 'short', year: 'numeric'});
+}
+
 class App extends Component {
   
-  constructor(props) {
-    super(props);
-    this.state = {
-      display_report: false,
-      total_queries: 0,
-      min_date: new Date(),
-      total_by_date: {},
-      missing_activity_json: false,
-      invalid_file_name: false
-    };
-    this.extractAggregatesFromZip = this.extractAggregatesFromZip.bind(this);
+  state = {
+      displayReport: false,
+      totalQueries: 0,
+      startDate: new Date(),
+      totalsByDate: {},
+      missingActivityJson: false,
+      invalidFileName: false
   }
   
   async extractAggregatesFromZip(file) {
     
     const isValidTakeoutName = takeoutNameRe(file.name);
-    
-    this.setState({invalid_file_name: true});
     
     if (isValidTakeoutName) {
       const parsed = await JSZip.loadAsync(file)
@@ -98,32 +100,55 @@ class App extends Component {
           );
         })
         .catch((err) => {
-          this.setState({missing_activity_json: true});
+          this.setState({missingActivityJson: true});
           console.log(err);
         });
       }, (err) => {console.log(err);});
       
-      const minDate = parsed.reduce((min, item) => item.time < min ? item.time : min, parsed[0].time);
+      const minDate = parsed.reduce((min, p) => p.time < min ? p.time : min, parsed[0].time);
       
       const sumByDate = parsed.reduce(
-        (acc, item) => ({ ...acc, [item['time'].substring(0,10)]: (acc[item['time'].substring(0,10)] || 0) + 1 }),
+        (acc, item) => (
+          { ...acc, [item['time'].substring(0,10)]: (acc[item['time'].substring(0,10)] || 0) + 1 }
+        ),
         {}
       );
       
       this.setState({
-        total_queries: parsed.length,
-        min_date: new Date(Date.parse(minDate)),
-        total_by_date: sumByDate,
-        display_report: true
+        totalQueries: parsed.length,
+        startDate: new Date(Date.parse(minDate)),
+        totalsByDate: sumByDate,
+        displayReport: true
       });
     } else {
-      this.setState({display_report: false});
+      this.setState({
+        displayReport: false,
+        invalidFileName: true
+      });
     }
-    
+
   }
+  
+  handleChangePage = (event, page) => {
+    this.setState({ page });
+  };
+
+  handleChangeRowsPerPage = event => {
+    this.setState({ rows_per_page: event.target.value });
+  };
   
   render() {
     const { classes } = this.props;
+    
+    const { 
+      displayReport, 
+      invalidFileName, 
+      missingActivityJson, 
+      startDate, 
+      totalQueries,
+      totalsByDate 
+    } = this.state;
+    
     return (
       <React.Fragment>
         <CssBaseline />
@@ -137,56 +162,61 @@ class App extends Component {
         </AppBar>
         <main className={classes.layout}>
           <Paper className={classes.paper}>
-            <Typography component="h1" variant="h4" align="center" gutterBottom>
-            Extract aggregate data from Takeout
+            <Typography
+              component="h1"
+              variant="h4"
+              align="center"
+              gutterBottom>
+              Extract aggregate data from Takeout
             </Typography>
-            <Typography variant="body2" align="center" color="textSecondary">
-            Quickly build an effective pricing table for your potential customers with this layout.
-            It&apos;s built with default Material-UI components with little customization.
+            <Typography
+              variant="body2"
+              align="center"
+              color="textSecondary">
+              Quickly build an effective pricing table for your potential customers with this layout.
+              It&apos;s built with default Material-UI components with little customization.
             </Typography>
             <div>
-              <input 
-                accept="application/zip" 
-                className={classes.input} 
-                id="zipfile-input" 
-                type="file" 
+              <input                
+                accept="application/zip"              
+                className={classes.input}                
+                id="zipfile-input"                
+                type="file"                
                 onChange={ (e) => this.extractAggregatesFromZip(e.target.files[0]) }
-              />
+                />
               <label htmlFor="zipfile-input">
-                <Button variant="outlined" component="span">
+                <Button className={classes.submit} variant="outlined" component="span">
                   Select ZIP file
                 </Button>
               </label>
             </div>
+            {
+              (invalidFileName || missingActivityJson) && 
+              
+              <SnackbarContent
+                className={classes.error}
+                message={
+                  <span>
+                    <ErrorIcon /> Invalid file
+                    </span>
+                } />      
+            }
           </Paper>
-          <Grow in={this.state.display_report}>
-          <Paper className={classes.paper}>
-            <Typography variant="body2" align="left">
-              Total number of queries: {this.state.total_queries}
-            </Typography>
-            <Typography variant="body2" align="left">
-              Min date: {this.state.min_date.toLocaleDateString('en-GB', {day: 'numeric', month: 'short', year: 'numeric'})}
-            </Typography>
-            <Table className={classes.table}>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Date</TableCell>
-                  <TableCell>Number of queries</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {
-                  Object.keys(this.state.total_by_date).sort().map((key, idx = 0) => {
-                    const date = new Date(Date.parse(key));
-                    return (<TableRow key={++idx}>
-                      <TableCell>{date.toLocaleDateString('en-GB', {day: 'numeric', month: 'short', year: 'numeric'})}</TableCell>
-                      <TableCell>{this.state.total_by_date[key]}</TableCell>
-                    </TableRow>);  
-                  })
-                }
-              </TableBody>
-            </Table>
-          </Paper>
+          <Grow in={displayReport}>
+            
+            <Paper className={classes.paper}>
+              <Typography variant="body2" align="left">
+                Total number of queries: {totalQueries}
+              </Typography>
+              <Typography variant="body2" align="left">
+                Start date: {formatDate(startDate)}
+              </Typography>
+              <ReportAggregates 
+                className={classes.paper}
+                totalsByDate={totalsByDate}
+                />
+              
+            </Paper>
           </Grow>
         </main>
       </MuiThemeProvider>
