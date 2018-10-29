@@ -8,6 +8,8 @@ import ErrorIcon from '@material-ui/icons/Error';
 import Grow from '@material-ui/core/Grow';
 import Paper from '@material-ui/core/Paper';
 import SnackbarContent from '@material-ui/core/SnackbarContent';
+import Tab from '@material-ui/core/Tab';
+import Tabs from '@material-ui/core/Tabs';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import withStyles from '@material-ui/core/styles/withStyles';
@@ -39,7 +41,7 @@ const styles = (theme) => ({
     },
   },
   paper: {
-    marginTop: theme.spacing.unit * 8,
+    marginBottom: theme.spacing.unit * 8,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -54,6 +56,9 @@ const styles = (theme) => ({
   },
   submit: {
     marginTop: theme.spacing.unit * 2,
+  },
+  tab: {
+    marginTop: theme.spacing.unit * 8,
   },
   table: {
     minWidth: 400,
@@ -80,7 +85,8 @@ class App extends Component {
       startDate: new Date(),
       totalsByDate: {},
       missingActivityJson: false,
-      invalidFileName: false
+      invalidFileName: false,
+      tabIndex: 0
   }
   
   async extractAggregatesFromZip(file) {
@@ -134,7 +140,11 @@ class App extends Component {
   };
 
   handleChangeRowsPerPage = event => {
-    this.setState({ rows_per_page: event.target.value });
+    this.setState({ rowsPerPage: event.target.value });
+  };
+  
+  handleTabChange = (event, value) => {
+    this.setState({ tabIndex: value})
   };
   
   render() {
@@ -145,6 +155,7 @@ class App extends Component {
       invalidFileName, 
       missingActivityJson, 
       startDate, 
+      tabIndex,
       totalQueries,
       totalsByDate 
     } = this.state;
@@ -161,6 +172,12 @@ class App extends Component {
           </Toolbar>
         </AppBar>
         <main className={classes.layout}>
+          <Paper square className={classes.tab}>
+            <Tabs value={tabIndex} indicatorColor="primary" onChange={this.handleTabChange} centered>
+              <Tab label="Introduction" />
+              <Tab label="Extract data" />
+            </Tabs>
+          </Paper>
           <Paper className={classes.paper}>
             <Typography
               component="h1"
@@ -173,8 +190,9 @@ class App extends Component {
               variant="body2"
               align="center"
               color="textSecondary">
-              Quickly build an effective pricing table for your potential customers with this layout.
-              It&apos;s built with default Material-UI components with little customization.
+              A paragraph explaining users in lay terms what the app does, that the process is run
+              locally on the browser and the only data that will be submitted is anonymous and 
+              users will be able to review the data before clicking submit.
             </Typography>
             <div>
               <input                
