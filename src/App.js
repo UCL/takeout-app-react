@@ -18,15 +18,6 @@ const theme = createMuiTheme({
   typography: {
     useNextVariants: true,
   },
-  overrides: {
-    MuiPaper: {
-      root: {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-      }
-    }
-  }
 });
 
 const styles = (theme) => ({
@@ -88,8 +79,8 @@ class App extends Component {
               <Tab label="Extract data" />
             </Tabs>
           </Paper>
-          {tabIndex === 0 && <Introduction />}
-          {tabIndex === 1 && <Extraction />}
+          {tabIndex === 0 && <Introduction classes={{paper: classes.paper}}/>}
+          {tabIndex === 1 && <Extraction classes={{paper: classes.paper}} />}
         </main>
       </MuiThemeProvider>
       </React.Fragment>
