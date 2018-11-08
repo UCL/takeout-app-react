@@ -39,7 +39,6 @@ const styles = (theme) => ({
     marginBottom: theme.spacing.unit * 8,
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center',
     padding: `${theme.spacing.unit * 2}px ${theme.spacing.unit * 3}px ${theme.spacing.unit * 3}px`,
   },
 });
@@ -68,7 +67,7 @@ class App extends Component {
         <AppBar position="absolute" color="default" className={classes.appBar}>
           <Toolbar>
             <Typography variant="h6" color="inherit" noWrap>
-              Project name
+              Google Search Counter
             </Typography>
           </Toolbar>
         </AppBar>
@@ -79,7 +78,8 @@ class App extends Component {
               <Tab label="Extract data" />
             </Tabs>
           </Paper>
-          {tabIndex === 0 && <Introduction classes={{paper: classes.paper}}/>}
+          {tabIndex === 0 &&
+            <Introduction classes={{paper: classes.paper}} tabCallback={this.handleTabChange} />}
           {tabIndex === 1 && <Extraction classes={{paper: classes.paper}} />}
         </main>
       </MuiThemeProvider>

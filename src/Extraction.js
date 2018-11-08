@@ -123,7 +123,7 @@ class ExtractionComponent extends React.Component {
             Extract aggregate data from Takeout
           </Typography>
           <Typography
-            variant="body2"
+            variant="body1"
             align="center"
             color="textSecondary">
             A paragraph explaining users in lay terms what the app does, that the process is run
