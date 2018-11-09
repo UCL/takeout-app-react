@@ -51,7 +51,7 @@ class IntroductionComponent extends React.Component {
           </Typography>
           <Divider className={classes.divider} />
           <Typography component="h2" variant="h5" align="left" gutterBottom>
-            Step two: Select the service to export the data from
+            Step two: Select and configure the service to export the data from
           </Typography>
           <Card>
             <CardContent>

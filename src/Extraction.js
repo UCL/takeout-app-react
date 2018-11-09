@@ -31,6 +31,9 @@ const styles = (theme) => ({
   error: {
     marginTop: theme.spacing.unit * 2,
     backgroundColor: theme.palette.error.light,
+  },
+  paper: {
+    alignItems: 'center',
   }
 });
 
@@ -124,8 +127,7 @@ class ExtractionComponent extends React.Component {
           </Typography>
           <Typography
             variant="body1"
-            align="center"
-            color="textSecondary">
+            align="center">
             A paragraph explaining users in lay terms what the app does, that the process is run
             locally on the browser and the only data that will be submitted is anonymous and
             users will be able to review the data before clicking submit.
@@ -159,10 +161,10 @@ class ExtractionComponent extends React.Component {
         <Grow in={displayReport}>
 
           <Paper className={classes.paper}>
-            <Typography variant="body2" align="left">
+            <Typography variant="body1" align="left">
               Total number of queries: {totalQueries}
             </Typography>
-            <Typography variant="body2" align="left">
+            <Typography variant="body1" align="left" gutterBottom>
               Start date: {formatDate(startDate)}
             </Typography>
             <ReportAggregates
