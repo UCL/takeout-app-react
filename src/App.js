@@ -31,6 +31,11 @@ const theme = createMuiTheme({
       caption: {
         fontSize: 14,
       }
+    },
+    MuiCard: {
+      root: {
+        marginBottom: `1rem`,
+      }
     }
   }
 });

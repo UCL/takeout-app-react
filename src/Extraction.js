@@ -141,7 +141,7 @@ class ExtractionComponent extends React.Component {
               onChange={ (e) => this.extractAggregatesFromZip(e.target.files[0]) }
               />
             <label htmlFor="zipfile-input">
-              <Button className={classes.submit} variant="outlined" component="span">
+              <Button className={classes.submit} variant="contained" component="span">
                 Select ZIP file
               </Button>
             </label>
