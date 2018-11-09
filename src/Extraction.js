@@ -123,7 +123,7 @@ class ExtractionComponent extends React.Component {
             variant="h4"
             align="center"
             gutterBottom>
-            Extract aggregate data from Takeout
+            Extract aggregate data from Google Takeout
           </Typography>
           <Typography
             variant="body1"
@@ -161,6 +161,9 @@ class ExtractionComponent extends React.Component {
         <Grow in={displayReport}>
 
           <Paper className={classes.paper}>
+            <Typography variant="h5" component="h2" gutterBottom>
+              Report
+            </Typography>
             <Typography variant="body1" align="left">
               Total number of queries: {totalQueries}
             </Typography>
@@ -171,7 +174,16 @@ class ExtractionComponent extends React.Component {
               className={classes.paper}
               totalsByDate={totalsByDate}
               />
-
+            <Typography variant="body1" align="left" gutterBottom style={{marginTop: `2em`}}>
+              Clicking on "Send aggregate data" will upload this report for processing. Please
+              note that no personal data, or location is collected. The information collected by
+              this service is anonymous.
+            </Typography>
+            <div>
+              <Button className={classes.submit} variant="contained" component="span">
+                Send aggregate data
+              </Button>
+            </div>
           </Paper>
         </Grow>
       </React.Fragment>

@@ -160,6 +160,11 @@ class IntroductionComponent extends React.Component {
             </CardContent>
             <CardMedia className={classes.imgcardmedia} component="img" src={assets.i2g} />
           </Card>
+          <Typography variant="body1" gutterBottom>
+            The Google Takeout service usually takes a couple of minutes to generate the export
+            file and send it to you via email. Follow the instructions in the email and save
+            the zip file in your computer. Next step will be the calculation of aggregate data.
+          </Typography>
           <div className={classes.buttonContainer}>
             <Button variant="contained" component="span" onClick={(e) => tabCallback(e, 1)}>
               Next: Extract aggregate data
