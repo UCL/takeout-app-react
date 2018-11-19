@@ -102,6 +102,37 @@ class ExtractionComponent extends React.Component {
 
   }
 
+  async extractAggregatesFromJson(file) {
+    const reader = new FileReader();
+
+    reader.onload = event => {
+      const infile = event.target.result;
+
+      const parsed = JSON.parse(infile).filter(
+        (item) => { return item.title.startsWith('Searched for ') }
+      );
+
+      const minDate = parsed.reduce((min, p) => p.time < min ? p.time : min, parsed[0].time);
+
+      const sumByDate = parsed.reduce(
+        (acc, item) => (
+          { ...acc, [item['time'].substring(0,10)]: (acc[item['time'].substring(0,10)] || 0) + 1 }
+        ),
+        {}
+      );
+
+      this.setState({
+        totalQueries: parsed.length,
+        startDate: new Date(Date.parse(minDate)),
+        totalsByDate: sumByDate,
+        displayReport: true
+      });
+    }
+
+    reader.readAsText(file);
+
+  }
+
   render() {
 
     const { classes } = this.props;
@@ -143,6 +174,18 @@ class ExtractionComponent extends React.Component {
             <label htmlFor="zipfile-input">
               <Button className={classes.submit} variant="contained" component="span">
                 Select ZIP file
+              </Button>
+            </label>
+            <input
+              accept="application/json"
+              className={classes.input}
+              id="jsonfile-input"
+              type="file"
+              onChange={ (e) => this.extractAggregatesFromJson(e.target.files[0]) }
+              />
+            <label htmlFor="jsonfile-input">
+              <Button className={classes.submit} variant="contained" component="span">
+                Select JSON file
               </Button>
             </label>
           </div>
