@@ -133,6 +133,28 @@ class ExtractionComponent extends React.Component {
 
   }
 
+  submitData() {
+    const data = {
+      totalQueries: this.state.totalQueries,
+      startDate: this.state.startDate,
+      totalsByDate: this.state.totalsByDate
+    };
+    fetch(process.env.REACT_APP_API_HOST + '/takeout/submit', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).then(response => {
+      this.setState({
+        isSubmitSuccess: response.ok
+      });
+      if (!response.ok) {
+        throw response;
+      }
+    });
+  }
+
   render() {
 
     const { classes } = this.props;
