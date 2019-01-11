@@ -53,7 +53,8 @@ class ExtractionComponent extends React.Component {
       startDate: new Date(),
       totalsByDate: {},
       missingActivityJson: false,
-      invalidFileName: false
+      invalidFileName: false,
+      isSubmitSuccess: false
   }
 
   async extractAggregatesFromZip(file) {
@@ -133,25 +134,21 @@ class ExtractionComponent extends React.Component {
 
   }
 
-  submitData() {
+  submitData = async () => {
     const data = {
       totalQueries: this.state.totalQueries,
       startDate: this.state.startDate,
       totalsByDate: this.state.totalsByDate
     };
-    fetch(process.env.REACT_APP_API_HOST + '/takeout/submit', {
+    const res = await fetch(process.env.REACT_APP_API_HOST + '/takeout/submit', {
       method: 'PUT',
       body: JSON.stringify(data),
       headers: {
         'Content-Type': 'application/json'
       }
-    }).then(response => {
-      this.setState({
-        isSubmitSuccess: response.ok
-      });
-      if (!response.ok) {
-        throw response;
-      }
+    });
+    this.setState({
+      isSubmitSuccess: res.ok
     });
   }
 
@@ -245,7 +242,11 @@ class ExtractionComponent extends React.Component {
               this service is anonymous.
             </Typography>
             <div>
-              <Button className={classes.submit} variant="contained" component="span">
+              <Button
+                onClick={this.submitData}
+                className={classes.submit}
+                variant="contained"
+                component="span">
                 Send aggregate data
               </Button>
             </div>
