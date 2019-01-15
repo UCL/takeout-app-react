@@ -56,7 +56,11 @@ class IntroductionComponent extends React.Component {
             Download your search logs from Google Takeout
           </Typography>
           <Typography variant="body1" gutterBottom>
-            Paragraph explaining the whole process
+            This app extracts anonymous aggregate data from search activity data logs from Google.
+            The app runs locally on your browser and does not collect personal information.
+          </Typography>
+          <Typography variant="body1" gutterBottom>
+            The search activity data can be obtained by following the steps described here below:
           </Typography>
           <Card style={{marginBottom: `1em`, marginTop: `1em`}}>
             <CardMedia component="video" src={assets.vid} type="video/mp4" controls />

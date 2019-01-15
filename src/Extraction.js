@@ -8,6 +8,9 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogTitle';
 import ErrorIcon from '@material-ui/icons/Error';
 import Grow from '@material-ui/core/Grow';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
 import Paper from '@material-ui/core/Paper';
 import SnackbarContent from '@material-ui/core/SnackbarContent';
 import Typography from '@material-ui/core/Typography';
@@ -28,6 +31,8 @@ const styles = (theme) => ({
   },
   submit: {
     marginTop: theme.spacing.unit * 2,
+    marginLeft: 'auto',
+    marginRight: 'auto'
   },
   table: {
     minWidth: 400,
@@ -42,6 +47,10 @@ const styles = (theme) => ({
   dialog: {
     marginLeft: 'auto',
     marginRight: 'auto'
+  },
+  list: {
+    width: '100%',
+    marginBottom: theme.spacing.unit
   }
 });
 
@@ -198,10 +207,32 @@ class ExtractionComponent extends React.Component {
           </Typography>
           <Typography
             variant="body1"
-            align="center">
-            A paragraph explaining users in lay terms what the app does, that the process is run
-            locally on the browser and the only data that will be submitted is anonymous and
-            users will be able to review the data before clicking submit.
+            align="left"
+            gutterBottom>
+            Once you have received the report file from Google, you can extract the aggregate data
+            using one of the options below. The extraction process is done locally on your browser
+            and no data is sent to our servers until you click "Send aggregate data". The app does
+            not collect any text from the search logs. The app extracts the following anonymous
+            values:
+          </Typography>
+          <List disablePadding={true} className={classes.list}>
+            <ListItem>
+              <ListItemText primary="Total number of queries" />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Date of first query in report" />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary="Number of queries grouped by date" />
+            </ListItem>
+          </List>
+          <Typography
+            variant="body1"
+            align="left"
+            gutterBottom>
+            To extract aggregate data from the ZIP file containing the search activity logs, click
+            "Select ZIP file". If your computer uncompressed the file automatically, please click
+            "Select JSON file".
           </Typography>
           <div>
             <input

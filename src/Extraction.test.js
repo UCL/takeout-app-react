@@ -22,7 +22,7 @@ it('it contains two children, Paper and Grow', () => {
   expect(wrapper.childAt(1).type()).toEqual(Grow);
 });
 
-it('it contains 3 buttons', () => {
+it('it contains 4 buttons', () => {
   expect(wrapper.find(Button)).toHaveLength(4);
 });
 
