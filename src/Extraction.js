@@ -2,6 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import Button from '@material-ui/core/Button';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogTitle';
 import ErrorIcon from '@material-ui/icons/Error';
 import Grow from '@material-ui/core/Grow';
 import Paper from '@material-ui/core/Paper';
@@ -34,6 +38,10 @@ const styles = (theme) => ({
   },
   paper: {
     alignItems: 'center',
+  },
+  dialog: {
+    marginLeft: 'auto',
+    marginRight: 'auto'
   }
 });
 
@@ -54,7 +62,9 @@ class ExtractionComponent extends React.Component {
       totalsByDate: {},
       missingActivityJson: false,
       invalidFileName: false,
-      isSubmitSuccess: false
+      isSubmitSuccess: false,
+      openSubmitDialog: false,
+      disableSubmitButton: false
   }
 
   async extractAggregatesFromZip(file) {
@@ -148,7 +158,15 @@ class ExtractionComponent extends React.Component {
       }
     });
     this.setState({
-      isSubmitSuccess: res.ok
+      isSubmitSuccess: res.ok,
+      openSubmitDialog: true,
+      disableSubmitButton: true
+    });
+  }
+
+  closeDialog = () => {
+    this.setState({
+      openSubmitDialog: false
     });
   }
 
@@ -158,8 +176,11 @@ class ExtractionComponent extends React.Component {
 
     const {
       displayReport,
+      disableSubmitButton,
       invalidFileName,
+      isSubmitSuccess,
       missingActivityJson,
+      openSubmitDialog,
       startDate,
       totalQueries,
       totalsByDate
@@ -244,11 +265,32 @@ class ExtractionComponent extends React.Component {
             <div>
               <Button
                 onClick={this.submitData}
+                disabled={disableSubmitButton}
                 className={classes.submit}
                 variant="contained"
                 component="span">
                 Send aggregate data
               </Button>
+              <Dialog open={openSubmitDialog}>
+                <DialogContent>
+                  <DialogContentText>
+                    {
+                      isSubmitSuccess
+                      ? 'Your Takeout data was uploaded successfully'
+                      : 'Upload failed. Please try again later'
+                    }
+                  </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                  <Button
+                    onClick={this.closeDialog}
+                    className={classes.dialog}
+                    variant="contained"
+                    component="span">
+                    Close
+                  </Button>
+                </DialogActions>
+              </Dialog>
             </div>
           </Paper>
         </Grow>

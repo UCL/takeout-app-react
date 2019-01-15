@@ -23,12 +23,21 @@ it('it contains two children, Paper and Grow', () => {
 });
 
 it('it contains 3 buttons', () => {
-  expect(wrapper.find(Button)).toHaveLength(3);
+  expect(wrapper.find(Button)).toHaveLength(4);
 });
 
-it('submit data to API', async () => {
+it('submit data to API and returns 200/OK', async () => {
   fetchMock.put("end:/takeout/submit", 200);
   const instance = wrapper.instance();
   await instance.submitData();
   expect(wrapper.state('isSubmitSuccess')).toEqual(true);
+  expect(wrapper.state('openSubmitDialog')).toEqual(true);
+});
+
+it('submit data to API and returns 404/Not Found', async () => {
+  fetchMock.put("end:/takeout/submit", 404, { overwriteRoutes: true });
+  const instance = wrapper.instance();
+  await instance.submitData();
+  expect(wrapper.state('isSubmitSuccess')).toEqual(false);
+  expect(wrapper.state('openSubmitDialog')).toEqual(true);
 });
