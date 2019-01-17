@@ -44,9 +44,13 @@ const styles = (theme) => ({
   paper: {
     alignItems: 'center',
   },
-  dialog: {
+  dialogButton: {
     marginLeft: 'auto',
-    marginRight: 'auto'
+    marginRight: 'auto',
+    marginBottom: theme.spacing.unit * 3
+  },
+  dialogText: {
+    paddingBottom: 0
   },
   list: {
     width: '100%',
@@ -303,7 +307,7 @@ class ExtractionComponent extends React.Component {
                 Send aggregate data
               </Button>
               <Dialog open={openSubmitDialog}>
-                <DialogContent>
+                <DialogContent className={classes.dialogtext}>
                   <DialogContentText>
                     {
                       isSubmitSuccess
@@ -315,7 +319,7 @@ class ExtractionComponent extends React.Component {
                 <DialogActions>
                   <Button
                     onClick={this.closeDialog}
-                    className={classes.dialog}
+                    className={classes.dialogButton}
                     variant="contained"
                     component="span">
                     Close
