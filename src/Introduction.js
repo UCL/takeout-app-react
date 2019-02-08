@@ -34,7 +34,6 @@ const styles = theme => ({
 });
 
 const assets = {
-  vid: 'https://res.cloudinary.com/uclfmedia/video/upload/v1541776335/takeout-app-react/steps.mp4',
   i2a: 'https://res.cloudinary.com/uclfmedia/image/upload/v1541776334/takeout-app-react/step2a.png',
   i2b: 'https://res.cloudinary.com/uclfmedia/image/upload/v1541776334/takeout-app-react/step2b.png',
   i2c: 'https://res.cloudinary.com/uclfmedia/image/upload/v1541776334/takeout-app-react/step2c.png',
@@ -60,12 +59,7 @@ class IntroductionComponent extends React.Component {
             The app runs locally on your browser and does not collect personal information.
           </Typography>
           <Typography variant="body1" gutterBottom>
-            The search activity data can be obtained by following the steps described here below:
-          </Typography>
-          <Card style={{marginBottom: `1em`, marginTop: `1em`}}>
-            <CardMedia component="video" src={assets.vid} type="video/mp4" controls />
-          </Card>
-          <Typography variant="body1" gutterBottom>
+            The search activity data can be obtained by following the steps described here below.
             Once you have downloaded the ZIP file from Google Takeout, you can continue with the
             next step to extract and calculate aggregate data.
           </Typography>
@@ -76,9 +70,6 @@ class IntroductionComponent extends React.Component {
             </Button>
           </div>
           <Divider className={classes.divider} />
-          <Typography variant="body1" gutterBottom>
-            The following section explains all the steps shown in the video:
-          </Typography>
           <Typography component="h2" variant="h5" align="left" gutterBottom>
             Step one: Log in to Google Takeout
           </Typography>
