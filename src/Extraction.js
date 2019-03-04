@@ -55,7 +55,11 @@ const styles = (theme) => ({
   list: {
     width: '100%',
     marginBottom: theme.spacing.unit
-  }
+  },
+  mono: {
+    fontFamily: 'monospace',
+    fontSize: theme.typography.body1.fontSize,
+  },
 });
 
 const takeoutNameRe = (name) => {
@@ -78,6 +82,20 @@ class ExtractionComponent extends React.Component {
       isSubmitSuccess: false,
       openSubmitDialog: false,
       disableSubmitButton: false
+  }
+
+  async extractAggregates(file) {
+
+    if (file.type === 'application/json') {
+      this.extractAggregatesFromJson(file);
+    } else if (file.type === 'application/zip') {
+      this.extractAggregatesFromZip(file);
+    } else {
+      this.setState({
+        invalidFileName: true
+      });
+    }
+
   }
 
   async extractAggregatesFromZip(file) {
@@ -234,33 +252,29 @@ class ExtractionComponent extends React.Component {
             variant="body1"
             align="left"
             gutterBottom>
-            To extract aggregate data from the ZIP file containing the search activity logs, click
-            "Select ZIP file". If your computer uncompressed the file automatically, please click
-            "Select JSON file".
+            To extract the aggregate data from the report downloaded from Google Takeout, click
+            "Select Takeout file". The report file could be found by default
+            in <span className={classes.mono}>"/Users/your user name/Downloads"</span> in Mac OS X
+            or <span className={classes.mono}>"C:\your name\downloads"</span> in Windows, and will
+            be either: (i) a ZIP file with the
+            name <span className={classes.mono}>"takeout-yyyymmddThhmmssZ-001.zip"</span>
+            with <span className={classes.mono}>"yyyymmddThhmmssZ"</span> specifying the date and
+            time of generation of the report file, or (ii) if your computer uncompressed the file
+            automatically, select the file <span className={classes.mono}>"MyActivity.json"</span>
+            in the folder <span className={classes.mono}>"Takeout/My Activity/Search"</span> in Mac
+            OS X and <span className={classes.mono}>"Takeout\My Activity\Search"</span> in Windows.
           </Typography>
           <div>
             <input
-              accept="application/zip"
+              accept="application/zip, application/json"
               className={classes.input}
-              id="zipfile-input"
+              id="takeout-input"
               type="file"
-              onChange={ (e) => this.extractAggregatesFromZip(e.target.files[0]) }
+              onChange={ (e) => this.extractAggregates(e.target.files[0]) }
               />
-            <label htmlFor="zipfile-input">
+            <label htmlFor="takeout-input">
               <Button className={classes.submit} variant="contained" component="span">
-                Select ZIP file
-              </Button>
-            </label>
-            <input
-              accept="application/json"
-              className={classes.input}
-              id="jsonfile-input"
-              type="file"
-              onChange={ (e) => this.extractAggregatesFromJson(e.target.files[0]) }
-              />
-            <label htmlFor="jsonfile-input">
-              <Button className={classes.submit} variant="contained" component="span">
-                Select JSON file
+                Select Takeout file
               </Button>
             </label>
           </div>

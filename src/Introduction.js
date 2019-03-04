@@ -29,7 +29,11 @@ const styles = theme => ({
   buttonContainer: {
     marginTop: theme.spacing.unit * 2,
     textAlign: 'center',
-  }
+  },
+  mono: {
+    fontFamily: 'monospace',
+    fontSize: theme.typography.body1.fontSize,
+  },
 });
 
 const assets = {
@@ -178,9 +182,10 @@ class IntroductionComponent extends React.Component {
             The Google Takeout service usually takes a couple of minutes to generate the report.
             You will then receive an email containing a link to download the report file.
             Follow the instructions in the email and save the zip file in your computer (browsers
-            usually save files in "&#47;Users&#47;your user name&#47;Downloads" in Mac OS X or
-            "C:&#92;your name&#92;downloads" in Windows).
-            Next step will be the calculation of aggregate data.
+            usually save files
+            in <span className={classes.mono}>"&#47;Users&#47;your user name&#47;Downloads"</span>
+            in Mac OS X or <span className={classes.mono}>"C:&#92;your name&#92;downloads"</span>
+            in Windows. Next step will be the calculation of aggregate data.
           </Typography>
           <div className={classes.buttonContainer}>
             <Button variant="contained" component="span" onClick={(e) => tabCallback(e, 1)}>

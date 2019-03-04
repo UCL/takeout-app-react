@@ -23,7 +23,7 @@ it('it contains two children, Paper and Grow', () => {
 });
 
 it('it contains 4 buttons', () => {
-  expect(wrapper.find(Button)).toHaveLength(4);
+  expect(wrapper.find(Button)).toHaveLength(3);
 });
 
 it('submit data to API and returns 200/OK', async () => {
