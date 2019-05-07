@@ -11,6 +11,8 @@ import Typography from '@material-ui/core/Typography';
 import withStyles from '@material-ui/core/styles/withStyles';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 
+import MUICookieConsent from 'material-ui-cookie-consent';
+
 import {Extraction} from './Extraction';
 import {Introduction} from './Introduction';
 
@@ -102,6 +104,13 @@ class App extends Component {
             <Introduction classes={{paper: classes.paper}} tabCallback={this.handleTabChange} />}
           {tabIndex === 1 && <Extraction classes={{paper: classes.paper}} />}
         </main>
+        <MUICookieConsent
+          cookieName="takeoutUclCookieConsent"
+          componentType="Snackbar"
+          message="This site uses cookies. By continuing to use this website, you agree to their use.
+          To find out more, including how to control cookies, see here: Cookie Policy"
+          acceptButtonLabel="Close and accept"
+          />
       </MuiThemeProvider>
       </React.Fragment>
     );
