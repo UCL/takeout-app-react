@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 import AppBar from '@material-ui/core/AppBar';
 import CssBaseline from '@material-ui/core/CssBaseline';
+import grey from '@material-ui/core/colors/grey';
 import Paper from '@material-ui/core/Paper';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
@@ -11,12 +12,19 @@ import Typography from '@material-ui/core/Typography';
 import withStyles from '@material-ui/core/styles/withStyles';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 
+import MUICookieConsent from 'material-ui-cookie-consent';
+
 import {Extraction} from './Extraction';
 import {Introduction} from './Introduction';
 
 const theme = createMuiTheme({
   typography: {
     useNextVariants: true,
+  },
+  palette: {
+    secondary: {
+      main: grey[50]
+    }
   },
   overrides: {
     MuiTableCell: {
@@ -102,6 +110,12 @@ class App extends Component {
             <Introduction classes={{paper: classes.paper}} tabCallback={this.handleTabChange} />}
           {tabIndex === 1 && <Extraction classes={{paper: classes.paper}} />}
         </main>
+        <MUICookieConsent
+          cookieName="takeoutUclCookieConsent"
+          componentType="Snackbar"
+          message="This site uses cookies. By continuing to use this website, you agree to their use."
+          acceptButtonLabel="Close and accept"
+          />
       </MuiThemeProvider>
       </React.Fragment>
     );
