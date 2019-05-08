@@ -77,8 +77,8 @@ class IntroductionComponent extends React.Component {
           <Typography variant="body1" gutterBottom>
             To obtain this information, we request that you (i) download your activity file from
             Google Takeout (we will explain how shortly), (ii) go to our
-            website <Anchor variant="primary" href="http://takeout.cs.ucl.ac.uk">
-              http:&#47;&#47;takeout.cs.ucl.ac.uk
+            website <Anchor variant="primary" href="https://takeout.cs.ucl.ac.uk">
+              https:&#47;&#47;takeout.cs.ucl.ac.uk
             </Anchor>.
              We will then ask you for the Google Activity file and will process the file on your
              computer. In other words, your Google Activity file will NOT be uploaded to us.
