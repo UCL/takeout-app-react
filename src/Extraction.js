@@ -27,10 +27,10 @@ const styles = (theme) => ({
   },
   form: {
     width: '100%', // Fix IE11 issue.
-    marginTop: theme.spacing.unit,
+    marginTop: theme.spacing(1),
   },
   submit: {
-    marginTop: theme.spacing.unit * 2,
+    marginTop: theme.spacing(2),
     marginLeft: 'auto',
     marginRight: 'auto'
   },
@@ -38,7 +38,7 @@ const styles = (theme) => ({
     minWidth: 400,
   },
   error: {
-    marginTop: theme.spacing.unit * 2,
+    marginTop: theme.spacing(2),
     backgroundColor: theme.palette.error.light,
   },
   paper: {
@@ -47,14 +47,14 @@ const styles = (theme) => ({
   dialogButton: {
     marginLeft: 'auto',
     marginRight: 'auto',
-    marginBottom: theme.spacing.unit * 3
+    marginBottom: theme.spacing(3)
   },
   dialogText: {
     paddingBottom: 0
   },
   list: {
     width: '100%',
-    marginBottom: theme.spacing.unit
+    marginBottom: theme.spacing(1)
   },
   mono: {
     fontFamily: 'monospace',

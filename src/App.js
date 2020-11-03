@@ -55,19 +55,19 @@ const styles = (theme) => ({
   layout: {
     width: 'auto',
     display: 'block', // Fix IE11 issue.
-    marginLeft: theme.spacing.unit * 3,
-    marginRight: theme.spacing.unit * 3,
-    [theme.breakpoints.up(800 + theme.spacing.unit * 3 * 2)]: {
+    marginLeft: theme.spacing(3),
+    marginRight: theme.spacing(3),
+    [theme.breakpoints.up(800 + theme.spacing(3 * 2))]: {
       width: 800,
       marginLeft: 'auto',
       marginRight: 'auto',
     },
   },
   paper: {
-    marginBottom: theme.spacing.unit * 8,
+    marginBottom: theme.spacing(8),
     display: 'flex',
     flexDirection: 'column',
-    padding: `${theme.spacing.unit * 2}px ${theme.spacing.unit * 3}px ${theme.spacing.unit * 3}px`,
+    padding: `${theme.spacing(2)}px ${theme.spacing(3)}px ${theme.spacing(3)}px`,
   },
 });
 

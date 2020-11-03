@@ -6,28 +6,29 @@ import Card from '@material-ui/core/Card';
 import CardMedia from '@material-ui/core/CardMedia';
 import ChevronRight from '@material-ui/icons/ChevronRight';
 import Divider from '@material-ui/core/Divider';
+import Link from '@material-ui/core/Link';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import withStyles from '@material-ui/core/styles/withStyles';
 
-import { Anchor } from './Anchor';
+// import { Anchor } from './Anchor';
 
 
 const styles = theme => ({
   divider: {
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 1,
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(1),
   },
   imgcardmedia: {
-    paddingLeft: theme.spacing.unit * 6,
-    paddingRight: theme.spacing.unit * 6,
-    paddingBottom: theme.spacing.unit * 4,
+    paddingLeft: theme.spacing(6),
+    paddingRight: theme.spacing(6),
+    paddingBottom: theme.spacing(4),
   },
   paper: {
-    marginBottom: theme.spacing.unit * 4,
+    marginBottom: theme.spacing(4),
   },
   buttonContainer: {
-    marginTop: theme.spacing.unit * 2,
+    marginTop: theme.spacing(2),
     textAlign: 'center',
   },
   mono: {
@@ -62,9 +63,9 @@ class IntroductionComponent extends React.Component {
             them in files accessible to you. Access is done by going to Google Takeout
           </Typography>
           <Typography variant="body1" gutterBottom>
-            <Anchor variant="primary" href="https://takeout.google.com">
+            <Link color="primary" href="https://takeout.google.com">
               https:&#47;&#47;takeout.google.com
-            </Anchor>
+            </Link>
           </Typography>
           <Typography variant="body1" gutterBottom>
             where you can download a file that lists each query you have made and the time that you
@@ -77,9 +78,9 @@ class IntroductionComponent extends React.Component {
           <Typography variant="body1" gutterBottom>
             To obtain this information, we request that you (i) download your activity file from
             Google Takeout (we will explain how shortly), (ii) go to our
-            website <Anchor variant="primary" href="https://takeout.cs.ucl.ac.uk">
+            website <Link color="primary" href="https://takeout.cs.ucl.ac.uk">
               https:&#47;&#47;takeout.cs.ucl.ac.uk
-            </Anchor>.
+            </Link>.
              We will then ask you for the Google Activity file and will process the file on your
              computer. In other words, your Google Activity file will NOT be uploaded to us.
              Instead, a javascript program running on your computer will only send us the dates and
@@ -95,8 +96,8 @@ class IntroductionComponent extends React.Component {
             Step 1: Log in to Google Takeout
           </Typography>
           <Typography variant="body1" gutterBottom>
-            Visit <Anchor variant="primary" href="https://takeout.google.com">
-            https:&#47;&#47;takeout.google.com</Anchor>. You might be asked to log in to your
+            Visit <Link color="primary" href="https://takeout.google.com">
+            https:&#47;&#47;takeout.google.com</Link>. You might be asked to log in to your
             Google account.
           </Typography>
           <Divider className={classes.divider} />
