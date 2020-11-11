@@ -2,11 +2,15 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import Button from '@material-ui/core/Button';
+import CheckIcon from '@material-ui/icons/Check';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import DescriptionIcon from '@material-ui/icons/Description';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogTitle';
 import ErrorIcon from '@material-ui/icons/Error';
+import Fab from '@material-ui/core/Fab';
 import Grow from '@material-ui/core/Grow';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -16,10 +20,10 @@ import SnackbarContent from '@material-ui/core/SnackbarContent';
 import Typography from '@material-ui/core/Typography';
 import withStyles from '@material-ui/core/styles/withStyles';
 
-import JSZip from 'jszip';
+// eslint-disable-next-line import/no-webpack-loader-syntax
+import Worker from "worker-loader!./filterWorker";
 
-import {ReportAggregates} from './ReportAggregates';
-
+import {ReportQueries} from './ReportQueries';
 
 const styles = (theme) => ({
   input: {
@@ -60,11 +64,17 @@ const styles = (theme) => ({
     fontFamily: 'monospace',
     fontSize: theme.typography.body1.fontSize,
   },
+  wrapper: {
+    margin: theme.spacing(1),
+    position: 'relative',
+  },
+  fabProgress: {
+    position: 'absolute',
+    top: -6,
+    left: -6,
+    zIndex: 1,
+  }
 });
-
-const takeoutNameRe = (name) => {
-  return /takeout-20[1-2]\d[0-1]\d[0-3]\dT[0-2]\d[0-6]\d[0-6]\dZ-\d{3}\.zip/.test(name);
-}
 
 const formatDate = (date) => {
   return date.toLocaleDateString('en-GB', {day: 'numeric', month: 'short', year: 'numeric'});
@@ -81,99 +91,35 @@ class ExtractionComponent extends React.Component {
       invalidFileName: false,
       isSubmitSuccess: false,
       openSubmitDialog: false,
-      disableSubmitButton: false
+      disableSubmitButton: false,
+      filteredQueries: [],
+      success: false,
+      loading: false
   }
 
-  async extractAggregates(file) {
+  filterWebWorker = (event) => {
+    const file = event.target.files[0];
 
-    if (file.type === 'application/json') {
-      this.extractAggregatesFromJson(file);
-    } else if (file.type === 'application/zip') {
-      this.extractAggregatesFromZip(file);
-    } else {
-      this.setState({
-        invalidFileName: true
-      });
-    }
+    this.setState({loading: true});
+    this.worker.postMessage(file);
 
-  }
-
-  async extractAggregatesFromZip(file) {
-
-    const isValidTakeoutName = takeoutNameRe(file.name);
-
-    if (isValidTakeoutName) {
-      const parsed = await JSZip.loadAsync(file)
-      .then( (zip) => {
-        const zipobject = zip.file('Takeout/My Activity/Search/MyActivity.json');
-
-        return zipobject.async("string")
-        .then(JSON.parse)
-        .then((data) => {
-          return data.filter(
-            (item) => { return item.title.startsWith('Searched for ') }
-          );
-        })
-        .catch((err) => {
-          this.setState({missingActivityJson: true});
-          console.log(err);
+    this.worker.onmessage = (e) => {
+      const msg = e.data;
+      if (msg.success) {
+        this.setState({
+          success: true,
+          filteredQueries: msg.result,
+          displayReport: true
         });
-      }, (err) => {console.log(err);});
-
-      const minDate = parsed.reduce((min, p) => p.time < min ? p.time : min, parsed[0].time);
-
-      const sumByDate = parsed.reduce(
-        (acc, item) => (
-          { ...acc, [item['time'].substring(0,10)]: (acc[item['time'].substring(0,10)] || 0) + 1 }
-        ),
-        {}
-      );
-
-      this.setState({
-        totalQueries: parsed.length,
-        startDate: new Date(Date.parse(minDate)),
-        totalsByDate: sumByDate,
-        displayReport: true
-      });
-    } else {
-      this.setState({
-        displayReport: false,
-        invalidFileName: true
-      });
+      }
+      this.setState({loading: false});
     }
-
   }
 
-  async extractAggregatesFromJson(file) {
-    const reader = new FileReader();
-
-    reader.onload = event => {
-      const infile = event.target.result;
-
-      const parsed = JSON.parse(infile).filter(
-        (item) => { return item.title.startsWith('Searched for ') }
-      );
-
-      const minDate = parsed.reduce((min, p) => p.time < min ? p.time : min, parsed[0].time);
-
-      const sumByDate = parsed.reduce(
-        (acc, item) => (
-          { ...acc, [item['time'].substring(0,10)]: (acc[item['time'].substring(0,10)] || 0) + 1 }
-        ),
-        {}
-      );
-
-      this.setState({
-        totalQueries: parsed.length,
-        startDate: new Date(Date.parse(minDate)),
-        totalsByDate: sumByDate,
-        displayReport: true
-      });
-    }
-
-    reader.readAsText(file);
-
+  componentDidMount = () => {
+    this.worker = new Worker();
   }
+
 
   submitData = async () => {
     const data = {
@@ -208,13 +154,15 @@ class ExtractionComponent extends React.Component {
     const {
       displayReport,
       disableSubmitButton,
+      filteredQueries,
       invalidFileName,
       isSubmitSuccess,
+      loading,
       missingActivityJson,
       openSubmitDialog,
       startDate,
-      totalQueries,
-      totalsByDate
+      success,
+      totalQueries
     } = this.state;
 
     return (
@@ -264,14 +212,21 @@ class ExtractionComponent extends React.Component {
             in the folder <span className={classes.mono}>"Takeout/My Activity/Search"</span> in Mac
             OS X and <span className={classes.mono}>"Takeout\My Activity\Search"</span> in Windows.
           </Typography>
+          <div className={classes.wrapper}>
+            <Fab color="primary">
+              {success ? <CheckIcon/> : <DescriptionIcon />}
+            </Fab>
+            {loading && <CircularProgress size={68} color="primary" className={classes.fabProgress} />}
+          </div>
           <div>
             <input
               accept="application/zip, application/json"
               className={classes.input}
               id="takeout-input"
               type="file"
-              onChange={ (e) => this.extractAggregates(e.target.files[0]) }
-              />
+              // onChange={ (e) => this.filterQueries(e.target.files[0]) }
+              onChange={this.filterWebWorker}
+            />
             <label htmlFor="takeout-input">
               <Button className={classes.submit} variant="contained" component="span">
                 Select Takeout file
@@ -302,10 +257,10 @@ class ExtractionComponent extends React.Component {
             <Typography variant="body1" align="left" gutterBottom>
               Start date: {formatDate(startDate)}
             </Typography>
-            <ReportAggregates
+            <ReportQueries
               className={classes.paper}
-              totalsByDate={totalsByDate}
-              />
+              filteredQueries={filteredQueries}
+            />
             <Typography variant="body1" align="left" gutterBottom style={{marginTop: `2em`}}>
               Clicking on "Send aggregate data" will upload this report for processing. Please
               note that no personal data, or location is collected. The information collected by
