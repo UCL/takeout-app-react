@@ -6,6 +6,27 @@ const takeoutNameRe = (name) => {
   return r.test(name);
 }
 
+const extractWordNGrams = (query) => {
+  const words = query.toLowerCase().split(' ');
+  if (words.length === 1) {
+    return words;
+  }
+  // contains the n in n-gram where n > 1
+  const nsize = Array.from(Array(words.length - 1).keys(), k => k + 2);
+
+  // insert 1-grams at the beginning of array
+  const queryAsNGrams = words.slice();
+
+  // start looping over n where n > 1
+  for (let n of nsize) {
+    for (let i = 0; i <= words.length - n; i++) {
+      const ngram = words.slice(i, i+n).join(' ');
+      queryAsNGrams.push(ngram);
+    }
+  }
+  return queryAsNGrams;
+}
+
 const binarySearch = (word) => {
   let startIdx = 0;
   let endIdx = terms.length - 1;
@@ -13,7 +34,7 @@ const binarySearch = (word) => {
 
   while (isFound === false && startIdx <= endIdx) {
     const middle = Math.floor((startIdx + endIdx)/2);
-    const compared = word.localeCompare(terms[middle]); // add or condition terms[middle].includes(word);
+    const compared = word.localeCompare(terms[middle]);
 
     if (compared === 0) {
       isFound = true;
@@ -27,7 +48,8 @@ const binarySearch = (word) => {
 }
 
 const binaryContainsTerm = (searchTerms, query) => {
-  return query.toLowerCase().split(' ').some((word) => binarySearch(word));
+  const ngrams = extractWordNGrams(query);
+  return ngrams.some((word) => binarySearch(word));
 }
 
 //  const containsTerm = (searchTerms, query) => {
@@ -63,15 +85,12 @@ const readZipContent = async (file) => {
 
 export const filterQueries = (file, workerCallback) => {
   if (file.type === 'application/json') {
-    const readJson = (callback) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        return callback(reader.result);
-      }
-      reader.readAsText(file);
-    };
-    const filteredQueries = readJson((result) => filterQueriesFromJson(result));
-    workerCallback(filteredQueries);
+    const reader = new FileReader();
+    reader.onload = () => {
+      const filteredQueries = filterQueriesFromJson(reader.result);
+      workerCallback(filteredQueries);
+    }
+    reader.readAsText(file);
   } else if (file.type === 'application/zip') {
     const isValidTakeoutName = takeoutNameRe(file.name);
     if (isValidTakeoutName) {
