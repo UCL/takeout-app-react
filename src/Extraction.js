@@ -80,6 +80,19 @@ const formatDate = (date) => {
   return date.toLocaleDateString('en-GB', {day: 'numeric', month: 'short', year: 'numeric'});
 }
 
+const convertJsonToCsv = (jsonarr) => {
+  const headers = 'date,query\n';
+  const csvbody = jsonarr.map((item) => `"${item.date}","${item.query}"`)
+    .join('\n');
+  return headers + csvbody;
+}
+
+const generateDownloadUrl = (filteredQueries) => {
+  const csvContent = convertJsonToCsv(filteredQueries);
+  const blob = new Blob([csvContent], {type: 'text/csv'});
+  return URL.createObjectURL(blob);
+}
+
 class ExtractionComponent extends React.Component {
 
   state = {
@@ -164,6 +177,8 @@ class ExtractionComponent extends React.Component {
       success,
       totalQueries
     } = this.state;
+
+    const downloadUrl = generateDownloadUrl(filteredQueries);
 
     return (
       <React.Fragment>
@@ -268,12 +283,13 @@ class ExtractionComponent extends React.Component {
             </Typography>
             <div>
               <Button
-                onClick={this.submitData}
-                disabled={disableSubmitButton}
+                // onClick={this.submitData}
+                href={downloadUrl}
                 className={classes.submit}
                 variant="contained"
-                component="span">
-                Send aggregate data
+                // download="test.csv"
+              >
+                Download filtered queries
               </Button>
               <Dialog open={openSubmitDialog}>
                 <DialogContent className={classes.dialogtext}>
