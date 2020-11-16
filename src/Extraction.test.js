@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { createShallow } from '@material-ui/core/test-utils';
-import fetchMock from 'fetch-mock';
+import fetchMock from 'fetch-mock/es5/client';
 
 import Button from '@material-ui/core/Button';
 import Grow from '@material-ui/core/Grow';
