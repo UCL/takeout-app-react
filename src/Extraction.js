@@ -1,9 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import 'date-fns';
 import Button from '@material-ui/core/Button';
 import CheckIcon from '@material-ui/icons/Check';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import DateFnsUtils from '@date-io/date-fns';
 import DescriptionIcon from '@material-ui/icons/Description';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -12,6 +14,11 @@ import DialogContentText from '@material-ui/core/DialogTitle';
 import ErrorIcon from '@material-ui/icons/Error';
 import Fab from '@material-ui/core/Fab';
 import Grow from '@material-ui/core/Grow';
+import InputLabel from '@material-ui/core/InputLabel';
+import {
+  KeyboardDatePicker,
+  MuiPickersUtilsProvider,
+} from '@material-ui/pickers';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -97,8 +104,6 @@ class ExtractionComponent extends React.Component {
 
   state = {
       displayReport: false,
-      totalQueries: 0,
-      startDate: new Date(),
       totalsByDate: {},
       missingActivityJson: false,
       invalidFileName: false,
@@ -107,14 +112,20 @@ class ExtractionComponent extends React.Component {
       disableSubmitButton: false,
       filteredQueries: [],
       success: false,
-      loading: false
+      loading: false,
+      presentationDate: new Date()
   }
 
   filterWebWorker = (event) => {
     const file = event.target.files[0];
+    const { presentationDate } = this.state;
 
     this.setState({loading: true});
-    this.worker.postMessage(file);
+
+    this.worker.postMessage({
+        file,
+        presentationDate
+    });
 
     this.worker.onmessage = (e) => {
       const msg = e.data;
@@ -133,6 +144,9 @@ class ExtractionComponent extends React.Component {
     this.worker = new Worker();
   }
 
+  handleDateChange = (date) => {
+    this.setState({presentationDate: date});
+  }
 
   submitData = async () => {
     const data = {
@@ -166,16 +180,14 @@ class ExtractionComponent extends React.Component {
 
     const {
       displayReport,
-      disableSubmitButton,
       filteredQueries,
       invalidFileName,
       isSubmitSuccess,
       loading,
       missingActivityJson,
       openSubmitDialog,
-      startDate,
-      success,
-      totalQueries
+      presentationDate,
+      success
     } = this.state;
 
     const downloadUrl = generateDownloadUrl(filteredQueries);
@@ -188,7 +200,7 @@ class ExtractionComponent extends React.Component {
             variant="h4"
             align="center"
             gutterBottom>
-            Extract aggregate data from Google Takeout
+            Filter search queries from Google Takeout
           </Typography>
           <Typography
             variant="body1"
@@ -227,6 +239,19 @@ class ExtractionComponent extends React.Component {
             in the folder <span className={classes.mono}>"Takeout/My Activity/Search"</span> in Mac
             OS X and <span className={classes.mono}>"Takeout\My Activity\Search"</span> in Windows.
           </Typography>
+          <div className={classes.wrapper}>
+            <InputLabel htmlFor="presentation-date">Date of first presentation</InputLabel>
+            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+              <KeyboardDatePicker
+                id="presentation-date"
+                variant="inline"
+                format="dd/MM/yyyy"
+                value={presentationDate}
+                onChange={this.handleDateChange}
+                disableFuture
+              />
+            </MuiPickersUtilsProvider>
+          </div>
           <div className={classes.wrapper}>
             <Fab color="primary">
               {success ? <CheckIcon/> : <DescriptionIcon />}
@@ -267,10 +292,10 @@ class ExtractionComponent extends React.Component {
               Report
             </Typography>
             <Typography variant="body1" align="left">
-              Total number of queries: {totalQueries}
+              Number of queries selected: {filteredQueries.length}
             </Typography>
             <Typography variant="body1" align="left" gutterBottom>
-              Start date: {formatDate(startDate)}
+              Date of first presentation: {formatDate(presentationDate)}
             </Typography>
             <ReportQueries
               className={classes.paper}
@@ -283,7 +308,6 @@ class ExtractionComponent extends React.Component {
             </Typography>
             <div>
               <Button
-                // onClick={this.submitData}
                 href={downloadUrl}
                 className={classes.submit}
                 variant="contained"

@@ -95,7 +95,7 @@ class App extends Component {
         <AppBar position="absolute" color="default" className={classes.appBar}>
           <Toolbar>
             <Typography variant="h6" color="inherit" noWrap>
-              Google Search Counter
+              Google Search Filter
             </Typography>
           </Toolbar>
         </AppBar>

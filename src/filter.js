@@ -52,18 +52,13 @@ const binaryContainsTerm = (searchTerms, query) => {
   return ngrams.some((word) => binarySearch(word));
 }
 
-//  const containsTerm = (searchTerms, query) => {
-//    return searchTerms.some((t) => {
-//      const q = ' ' + query + ' ';
-//      const term = ' ' + t + ' ';
-//      return q.toLowerCase().includes(term.toLowerCase());
-//    })
-//  }
-
-const filterQueriesFromJson = (jsonString) => {
+const filterQueriesFromJson = (jsonString, presentationDate) => {
+  const twoYearsBeforePresentation = new Date().setFullYear(
+    presentationDate.getFullYear() - 2
+  );
   return JSON.parse(jsonString)
     .filter((item) => {
-      return Date.parse(item.time) >= new Date().setFullYear(new Date().getFullYear() - 2)
+      return Date.parse(item.time) >= twoYearsBeforePresentation
     }).filter((item) => {
       return item.title.startsWith('Searched for ')
     }).map((item) => {
@@ -83,11 +78,15 @@ const readZipContent = async (file) => {
   return stringContent;
 };
 
-export const filterQueries = (file, workerCallback) => {
+export const filterQueries = (data, workerCallback) => {
+  const {file, presentationDate} = data;
+
   if (file.type === 'application/json') {
     const reader = new FileReader();
     reader.onload = () => {
-      const filteredQueries = filterQueriesFromJson(reader.result);
+      const filteredQueries = filterQueriesFromJson(
+        reader.result, presentationDate
+      );
       workerCallback(filteredQueries);
     }
     reader.readAsText(file);
@@ -95,7 +94,9 @@ export const filterQueries = (file, workerCallback) => {
     const isValidTakeoutName = takeoutNameRe(file.name);
     if (isValidTakeoutName) {
       readZipContent(file).then((content) => {
-        const filteredQueries = filterQueriesFromJson(content);
+        const filteredQueries = filterQueriesFromJson(
+          content, presentationDate
+        );
         workerCallback(filteredQueries);
       });
     }
