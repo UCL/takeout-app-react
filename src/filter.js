@@ -52,19 +52,24 @@ const binaryContainsTerm = (searchTerms, query) => {
   return ngrams.some((word) => binarySearch(word));
 }
 
-const filterQueriesFromJson = (jsonString, presentationDate) => {
+const isDateWithinTwoYearsBeforePresentation = (date, presentationDate) => {
   const twoYearsBeforePresentation = new Date().setFullYear(
     presentationDate.getFullYear() - 2
   );
+  return date >= twoYearsBeforePresentation && date <= presentationDate;
+}
+
+const filterQueriesFromJson = (jsonString, presentationDate) => {
   return JSON.parse(jsonString)
     .filter((item) => {
-      return Date.parse(item.time) >= twoYearsBeforePresentation
+      return isDateWithinTwoYearsBeforePresentation(
+        Date.parse(item.time), presentationDate
+      )
     }).filter((item) => {
       return item.title.startsWith('Searched for ')
     }).map((item) => {
       return {query: item.title.replace('Searched for ', ''), date: item.time}
     }).filter((item) => {
-      // return containsTerm(terms, item.query);
       return binaryContainsTerm(terms, item.query);
     });
 }
