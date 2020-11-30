@@ -56,37 +56,27 @@ class IntroductionComponent extends React.Component {
       <React.Fragment>
         <Paper className={classes.paper}>
           <Typography component="h1" variant="h4" align="center" gutterBottom>
-            Download your search logs from Google Takeout
+            Google Takeout Web Browser
           </Typography>
           <Typography variant="body1" gutterBottom>
-            If you are signed in to a Google account, Google stores your web searches and stores
-            them in files accessible to you. Access is done by going to Google Takeout
+            As outlined in the Patient Information Sheet, the focus of this study is to evaluate
+            women’s health-related search patterns prior to presentation to gynaecology clinic.
           </Typography>
           <Typography variant="body1" gutterBottom>
-            <Link color="primary" href="https://takeout.google.com">
-              https:&#47;&#47;takeout.google.com
-            </Link>
+            Your search history will be accessed by downloading a Google Takeout file (see step by
+            step guide below). In order to extract the specific health related terms from the Google
+            Takeout file a health filter is applied through a
+            browser <Link color="primary" href="https://takeout.cs.ucl.ac.uk">
+            https:&#47;&#47;takeout.cs.ucl.ac.uk</Link>. It is important for you to be aware that the
+            extraction process happens locally on your browser and the Google Takeout file is not
+            uploaded to us. We only receive the text of the search query and dates when specific health-related terms
+            were used. The filtered file is saved with a pseudo-anonymised study number.
+            The original takeout file is not stored.
           </Typography>
           <Typography variant="body1" gutterBottom>
-            where you can download a file that lists each query you have made and the time that you
-            made it. Of course, there may be queries you consider private. However, we do not
-            collect specific queries. We are only interested in the number of queries you made
-            each day. We do not collect any information about what these queries were. The only
-            data we receive is a date, e.g. January 1, 2018, together with a number indicating the
-            number of queries made to Google on that day. No further information is collected.
-          </Typography>
-          <Typography variant="body1" gutterBottom>
-            To obtain this information, we request that you (i) download your activity file from
-            Google Takeout (we will explain how shortly), (ii) go to our
-            website <Link color="primary" href="https://takeout.cs.ucl.ac.uk">
-              https:&#47;&#47;takeout.cs.ucl.ac.uk
-            </Link>.
-             We will then ask you for the Google Activity file and will process the file on your
-             computer. In other words, your Google Activity file will NOT be uploaded to us.
-             Instead, a javascript program running on your computer will only send us the dates and
-             number of searches made on these dates. Your private Google Activity file will never
-             leave your computer and the data sent to us will not include any information on what
-             searches you made.
+            We hope that analysing women’s search patterns has the potential to not only better our
+            understanding of how gynaecological conditions present, but also identify specific
+            search patterns, which could ultimately predict the underlying diagnosis.
           </Typography>
           <Typography variant="body1" gutterBottom>
             Please now follow the steps below:
@@ -186,11 +176,11 @@ class IntroductionComponent extends React.Component {
             usually save files
             in <span className={classes.mono}>"&#47;Users&#47;your user name&#47;Downloads"</span>
             in Mac OS X or <span className={classes.mono}>"C:&#92;your name&#92;downloads"</span>
-            in Windows. Next step will be the calculation of aggregate data.
+            in Windows. Next step will be the extraction of health-related data.
           </Typography>
           <div className={classes.buttonContainer}>
             <Button variant="contained" component="span" onClick={(e) => tabCallback(e, 1)}>
-              Next: Extract aggregate data
+              Next: Extract data
               <ChevronRight />
             </Button>
           </div>

@@ -7,10 +7,6 @@ import CheckIcon from '@material-ui/icons/Check';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import DateFnsUtils from '@date-io/date-fns';
 import DescriptionIcon from '@material-ui/icons/Description';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogTitle';
 import ErrorIcon from '@material-ui/icons/Error';
 import Fab from '@material-ui/core/Fab';
 import Grow from '@material-ui/core/Grow';
@@ -107,8 +103,6 @@ class ExtractionComponent extends React.Component {
       totalsByDate: {},
       missingActivityJson: false,
       invalidFileName: false,
-      isSubmitSuccess: false,
-      openSubmitDialog: false,
       disableSubmitButton: false,
       filteredQueries: [],
       success: false,
@@ -182,10 +176,8 @@ class ExtractionComponent extends React.Component {
       displayReport,
       filteredQueries,
       invalidFileName,
-      isSubmitSuccess,
       loading,
       missingActivityJson,
-      openSubmitDialog,
       presentationDate,
       success
     } = this.state;
@@ -206,28 +198,23 @@ class ExtractionComponent extends React.Component {
             variant="body1"
             align="left"
             gutterBottom>
-            Once you have received the report file from Google, you can extract the aggregate data
-            using one of the options below. The extraction process is done locally on your browser
-            and no data is sent to our servers until you click "Send aggregate data". The app does
-            not collect any text from the search logs. The app extracts the following anonymous
-            values:
+            Once you have received the report file from Google, you can extract the health-related data
+            using one of the options below. The extraction process is done locally on your browser.
+            The app extracts the following data fields:
           </Typography>
           <List disablePadding={true} className={classes.list}>
             <ListItem>
-              <ListItemText primary="Total number of queries" />
+              <ListItemText primary="Timestamp of the query" />
             </ListItem>
             <ListItem>
-              <ListItemText primary="Date of first query in report" />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary="Number of queries grouped by date" />
+              <ListItemText primary="Text of the query" />
             </ListItem>
           </List>
           <Typography
             variant="body1"
             align="left"
             gutterBottom>
-            To extract the aggregate data from the report downloaded from Google Takeout, click
+            To filter the health-related data from the report downloaded from Google Takeout, click
             "Select Takeout file". The report file could be found by default
             in <span className={classes.mono}>"/Users/your user name/Downloads"</span> in Mac OS X
             or <span className={classes.mono}>"C:\your name\downloads"</span> in Windows, and will
@@ -302,9 +289,8 @@ class ExtractionComponent extends React.Component {
               filteredQueries={filteredQueries}
             />
             <Typography variant="body1" align="left" gutterBottom style={{marginTop: `2em`}}>
-              Clicking on "Send aggregate data" will upload this report for processing. Please
-              note that no personal data, or location is collected. The information collected by
-              this service is anonymous.
+              Clicking on "Download filtered queries" will generate a CSV file with the filtered
+              queries.
             </Typography>
             <div>
               <Button
@@ -315,26 +301,6 @@ class ExtractionComponent extends React.Component {
               >
                 Download filtered queries
               </Button>
-              <Dialog open={openSubmitDialog}>
-                <DialogContent className={classes.dialogtext}>
-                  <DialogContentText>
-                    {
-                      isSubmitSuccess
-                      ? 'Your Takeout data was uploaded successfully'
-                      : 'Upload failed. Please try again later'
-                    }
-                  </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                  <Button
-                    onClick={this.closeDialog}
-                    className={classes.dialogButton}
-                    variant="contained"
-                    component="span">
-                    Close
-                  </Button>
-                </DialogActions>
-              </Dialog>
             </div>
           </Paper>
         </Grow>
