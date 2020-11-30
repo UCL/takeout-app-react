@@ -7,7 +7,10 @@ const takeoutNameRe = (name) => {
 }
 
 const extractWordNGrams = (query) => {
-  const words = query.toLowerCase().split(' ');
+  const words = query.toLowerCase()
+    .replaceAll(/[()/\-+:;,.]/g, ' ')
+    .replaceAll(/  */g, ' ')
+    .split(' ');
   if (words.length === 1) {
     return words;
   }
