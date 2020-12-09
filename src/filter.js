@@ -62,7 +62,8 @@ const isDateWithinTwoYearsBeforePresentation = (date, presentationDate) => {
   return date >= twoYearsBeforePresentation && date <= presentationDate;
 }
 
-const filterQueriesFromJson = (jsonString, presentationDate) => {
+const filterQueriesFromJson = (jsonString, presentationDate, namesToFilter) => {
+  const nameTokens = namesToFilter.replaceAll(/  */g, ' ').split(' ');
   return JSON.parse(jsonString)
     .filter((item) => {
       return isDateWithinTwoYearsBeforePresentation(
@@ -70,6 +71,12 @@ const filterQueriesFromJson = (jsonString, presentationDate) => {
       )
     }).filter((item) => {
       return item.title.startsWith('Searched for ')
+    }).map((item) => {
+      for (let token of nameTokens) {
+        const regexp = new RegExp(token, 'ig');
+        item.title = item.title.replaceAll(regexp, '');
+      }
+      return item;
     }).map((item) => {
       return {query: item.title.replace('Searched for ', ''), date: item.time}
     }).filter((item) => {
@@ -87,13 +94,13 @@ const readZipContent = async (file) => {
 };
 
 export const filterQueries = (data, workerCallback) => {
-  const {file, presentationDate} = data;
+  const {file, presentationDate, namesToFilter} = data;
 
   if (file.type === 'application/json') {
     const reader = new FileReader();
     reader.onload = () => {
       const filteredQueries = filterQueriesFromJson(
-        reader.result, presentationDate
+        reader.result, presentationDate, namesToFilter
       );
       workerCallback(filteredQueries);
     }
@@ -103,7 +110,7 @@ export const filterQueries = (data, workerCallback) => {
     if (isValidTakeoutName) {
       readZipContent(file).then((content) => {
         const filteredQueries = filterQueriesFromJson(
-          content, presentationDate
+          content, presentationDate, namesToFilter
         );
         workerCallback(filteredQueries);
       });
