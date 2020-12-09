@@ -9,7 +9,9 @@ import DateFnsUtils from '@date-io/date-fns';
 import DescriptionIcon from '@material-ui/icons/Description';
 import ErrorIcon from '@material-ui/icons/Error';
 import Fab from '@material-ui/core/Fab';
+import FormHelperText from '@material-ui/core/FormHelperText';
 import Grow from '@material-ui/core/Grow';
+import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import {
   KeyboardDatePicker,
@@ -107,18 +109,20 @@ class ExtractionComponent extends React.Component {
       filteredQueries: [],
       success: false,
       loading: false,
-      presentationDate: new Date()
+      presentationDate: new Date(),
+      namesToFilter: ''
   }
 
   filterWebWorker = (event) => {
     const file = event.target.files[0];
-    const { presentationDate } = this.state;
+    const { presentationDate, namesToFilter } = this.state;
 
     this.setState({loading: true});
 
     this.worker.postMessage({
         file,
-        presentationDate
+        presentationDate,
+        namesToFilter
     });
 
     this.worker.onmessage = (e) => {
@@ -140,6 +144,10 @@ class ExtractionComponent extends React.Component {
 
   handleDateChange = (date) => {
     this.setState({presentationDate: date});
+  }
+
+  handleNameToFilterChange = (event) => {
+    this.setState({namesToFilter: event.target.value});
   }
 
   submitData = async () => {
@@ -179,7 +187,8 @@ class ExtractionComponent extends React.Component {
       loading,
       missingActivityJson,
       presentationDate,
-      success
+      success,
+      namesToFilter
     } = this.state;
 
     const downloadUrl = generateDownloadUrl(filteredQueries);
@@ -238,6 +247,16 @@ class ExtractionComponent extends React.Component {
                 disableFuture
               />
             </MuiPickersUtilsProvider>
+          </div>
+          <div className={classes.wrapper}>
+            <InputLabel htmlFor="name-to-filter">Patient name</InputLabel>
+            <Input
+              id="name-to-filter"
+              value={namesToFilter}
+              onChange={this.handleNameToFilterChange}
+              fullWidth
+            />
+            <FormHelperText id="name-to-filter-helper-text">Names will be removed from search queries</FormHelperText>
           </div>
           <div className={classes.wrapper}>
             <Fab color="primary">
