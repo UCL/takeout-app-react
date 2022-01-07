@@ -6,6 +6,11 @@ const takeoutNameRe = (name) => {
   return r.test(name);
 }
 
+const zipNameRe = (name) => {
+  const r = /\.zip/;
+  return r.test(name);
+}
+
 const extractWordNGrams = (query) => {
   const words = query.toLowerCase()
     .replaceAll(/[()/\-+:;,.]/g, ' ')
@@ -87,9 +92,9 @@ const filterQueriesFromJson = (jsonString, presentationDate, namesToFilter) => {
 const readZipContent = async (file) => {
   const jszip = await JSZip.loadAsync(file);
   const zipobj = await jszip.file(
-    'Takeout/My Activity/Search/MyActivity.json'
+    /Takeout\/My Activity\/Search\/My ?Activity\.json/
   );
-  const stringContent = await zipobj.async("string");
+  const stringContent = await zipobj[0].async("string");
   return stringContent;
 };
 
@@ -106,8 +111,9 @@ export const filterQueries = (data, workerCallback) => {
     }
     reader.readAsText(file);
   } else if (file.type === 'application/zip') {
+    const isZipExtension = zipNameRe(file.name);
     const isValidTakeoutName = takeoutNameRe(file.name);
-    if (isValidTakeoutName) {
+    if (isZipExtension || isValidTakeoutName) {
       readZipContent(file).then((content) => {
         const filteredQueries = filterQueriesFromJson(
           content, presentationDate, namesToFilter
