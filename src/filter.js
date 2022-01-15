@@ -1,4 +1,5 @@
 import JSZip from 'jszip';
+import { parse } from 'node-html-parser';
 import terms from './medicalTerms';
 
 const takeoutNameRe = (name) => {
@@ -87,15 +88,43 @@ const filterQueriesFromJson = (jsonString, presentationDate, namesToFilter) => {
     }).filter((item) => {
       return binaryContainsTerm(terms, item.query);
     });
-}
+};
+
+const filterQueriesFromHtml = (content, presentationDate, namesToFilter) => {
+  const nameTokens = namesToFilter.replaceAll(/  */g, ' ').split(' ');
+  const doc = parse(content);
+  const searches = doc.querySelectorAll(
+    'div.content-cell.mdl-cell.mdl-cell--6-col.mdl-typography--body-1 a'
+  );
+  return [...searches].map((item) => {
+      return {
+        type: item.parentNode.childNodes[0].textContent,
+        query: item.parentNode.childNodes[1].textContent,
+        date: item.parentNode.childNodes[3].textContent
+      };
+    }).filter((item) => {
+      return isDateWithinTwoYearsBeforePresentation(
+        Date.parse(item.date),
+        presentationDate
+      );
+    }).filter((item) => {
+      return item.type.charAt(0) === 'S';
+    }).map((item) => {
+      return {
+        query: item.query,
+        date: item.date
+      }
+    }).filter((item) => {
+      return binaryContainsTerm(terms, item.query);
+    });
+};
 
 const readZipContent = async (file) => {
   const jszip = await JSZip.loadAsync(file);
   const zipobj = await jszip.file(
-    /Takeout\/My Activity\/Search\/My ?Activity\.json/
+    /Takeout\/My Activity\/Search\/My ?Activity\.(html|json)/
   );
-  const stringContent = await zipobj[0].async("string");
-  return stringContent;
+  return zipobj[0];
 };
 
 export const filterQueries = (data, workerCallback) => {
@@ -110,15 +139,38 @@ export const filterQueries = (data, workerCallback) => {
       workerCallback(filteredQueries);
     }
     reader.readAsText(file);
+  } else if (file.type === 'text/html') {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const filteredQueries = filterQueriesFromHtml(
+        reader.result, presentationDate, namesToFilter
+      );
+      workerCallback(filteredQueries);
+    }
+    reader.readAsText(file);
   } else if (file.type === 'application/zip') {
     const isZipExtension = zipNameRe(file.name);
     const isValidTakeoutName = takeoutNameRe(file.name);
     if (isZipExtension || isValidTakeoutName) {
-      readZipContent(file).then((content) => {
-        const filteredQueries = filterQueriesFromJson(
-          content, presentationDate, namesToFilter
-        );
-        workerCallback(filteredQueries);
+      readZipContent(file).then((object) => {
+        const fileName = object.name;
+        const content = object.async("string");
+        let filteredQueries = [];
+        if (fileName.endsWith('html')) {
+          content.then((data) => {
+            const filteredQueries = filterQueriesFromHtml(
+              data, presentationDate, namesToFilter
+            );
+            workerCallback(filteredQueries);
+          });
+        } else if (fileName.endsWith('json')) {
+          content.then((data) => {
+            const filteredQueries = filterQueriesFromJson(
+              data, presentationDate, namesToFilter
+            );
+            workerCallback(filteredQueries);
+          });
+        }
       });
     }
   } else {
