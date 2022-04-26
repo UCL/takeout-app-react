@@ -96,11 +96,13 @@ const filterQueriesFromHtml = (content, presentationDate, namesToFilter) => {
   const searches = doc.querySelectorAll(
     'div.content-cell.mdl-cell.mdl-cell--6-col.mdl-typography--body-1 a'
   );
+  const logFirstChildNodeUndefined = [...searches].find((item) => {
+    const {childNodes} = item.parentNode;
+    return childNodes[3] === undefined;
+  })
+  console.log(logFirstChildNodeUndefined);
   return [...searches].filter((item) => {
     const {childNodes} = item.parentNode;
-    if (childNodes !== undefined && childNodes[3] === undefined) {
-      console.log(childNodes);
-    }
     return childNodes[0] !== undefined && childNodes[1] !== undefined && childNodes[3] !== undefined;
   }).map((item) => {
       return {
