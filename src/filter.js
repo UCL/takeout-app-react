@@ -96,7 +96,13 @@ const filterQueriesFromHtml = (content, presentationDate, namesToFilter) => {
   const searches = doc.querySelectorAll(
     'div.content-cell.mdl-cell.mdl-cell--6-col.mdl-typography--body-1 a'
   );
-  return [...searches].map((item) => {
+  return [...searches].filter((item) => {
+    const {childNodes} = item.parentNode;
+    if (childNodes !== undefined && childNodes[3] === undefined) {
+      console.log(childNodes);
+    }
+    return childNodes[0] !== undefined && childNodes[1] !== undefined && childNodes[3] !== undefined;
+  }).map((item) => {
       return {
         type: item.parentNode.childNodes[0].textContent,
         query: item.parentNode.childNodes[1].textContent,
