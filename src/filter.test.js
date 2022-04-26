@@ -35,6 +35,15 @@ it('processes an invalid html', () => {
           {textContent: "bli"},
         ]
       }
+    },
+    {
+      parentNode: {
+        childNodes: [
+          {textContent: "bla2"},
+          {textContent: "ble2"},
+          {textContent: "bli2"},
+        ]
+      }
     }
   ]
   const result = [...searches].filter((item) => {
@@ -47,5 +56,10 @@ it('processes an invalid html', () => {
         date: item.parentNode.childNodes[3].textContent
       };
     });
+  const test = [...searches].find((item) => {
+    const {childNodes} = item.parentNode;
+    return childNodes[3] === undefined;
+  })
+  console.log(test);
   expect(result).toHaveLength(0);
 });
