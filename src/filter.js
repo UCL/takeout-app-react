@@ -99,7 +99,7 @@ const filterQueriesFromHtml = (content, presentationDate, namesToFilter) => {
   const logFirstChildNodeUndefined = [...searches].find((item) => {
     const {childNodes} = item.parentNode;
     return childNodes[3] === undefined;
-  })
+  });
   console.log(logFirstChildNodeUndefined);
   return [...searches].filter((item) => {
     const {childNodes} = item.parentNode;
