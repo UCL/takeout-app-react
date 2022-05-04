@@ -60,6 +60,12 @@ it('processes an invalid html', () => {
     const {childNodes} = item.parentNode;
     return childNodes[3] === undefined;
   })
-  console.log(test);
   expect(result).toHaveLength(0);
+});
+
+it('filters out non alpha characters', () => {
+  const input = "a[b(c)d/e\"f-g+h:i;j,k.lm\"n]";
+  const result = input.toLowerCase().replaceAll(/[\[\]()/\\\-+:;,."]/g, '');
+  const expected = "abcdefghijklmn";
+  expect(result).toEqual(expected);
 });
