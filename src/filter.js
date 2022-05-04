@@ -14,7 +14,7 @@ const zipNameRe = (name) => {
 
 const extractWordNGrams = (query) => {
   const words = query.toLowerCase()
-    .replaceAll(/[()/\-+:;,.]/g, ' ')
+    .replaceAll(/[\[\]()/\\\-+:;,."]/gm, ' ')
     .replaceAll(/  */g, ' ')
     .split(' ');
   if (words.length === 1) {
@@ -58,6 +58,7 @@ const binarySearch = (word) => {
 
 const binaryContainsTerm = (searchTerms, query) => {
   const ngrams = extractWordNGrams(query);
+  console.log(ngrams);
   return ngrams.some((word) => binarySearch(word));
 }
 
@@ -84,7 +85,10 @@ const filterQueriesFromJson = (jsonString, presentationDate, namesToFilter) => {
       }
       return item;
     }).map((item) => {
-      return {query: item.title.replace('Searched for ', ''), date: item.time}
+      return {
+        query: item.title.replace('Searched for ', '').replaceAll('"', ''),
+        date: item.time
+      }
     }).filter((item) => {
       return binaryContainsTerm(terms, item.query);
     });
@@ -119,7 +123,7 @@ const filterQueriesFromHtml = (content, presentationDate, namesToFilter) => {
       return item.type.charAt(0) === 'S';
     }).map((item) => {
       return {
-        query: item.query,
+        query: item.query.replaceAll('"', ''),
         date: item.date
       }
     }).filter((item) => {
