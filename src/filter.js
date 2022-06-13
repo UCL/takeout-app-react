@@ -14,7 +14,7 @@ const zipNameRe = (name) => {
 
 const extractWordNGrams = (query) => {
   const words = query.toLowerCase()
-    .replaceAll(/[()/\-+:;,.]/g, ' ')
+    .replaceAll(/[\[\]()/\\\-+:;,."]/gm, ' ')
     .replaceAll(/  */g, ' ')
     .split(' ');
   if (words.length === 1) {
@@ -58,6 +58,7 @@ const binarySearch = (word) => {
 
 const binaryContainsTerm = (searchTerms, query) => {
   const ngrams = extractWordNGrams(query);
+  console.log(ngrams);
   return ngrams.some((word) => binarySearch(word));
 }
 
@@ -84,7 +85,10 @@ const filterQueriesFromJson = (jsonString, presentationDate, namesToFilter) => {
       }
       return item;
     }).map((item) => {
-      return {query: item.title.replace('Searched for ', ''), date: item.time}
+      return {
+        query: item.title.replace('Searched for ', '').replaceAll('"', ''),
+        date: item.time
+      }
     }).filter((item) => {
       return binaryContainsTerm(terms, item.query);
     });
@@ -96,7 +100,15 @@ const filterQueriesFromHtml = (content, presentationDate, namesToFilter) => {
   const searches = doc.querySelectorAll(
     'div.content-cell.mdl-cell.mdl-cell--6-col.mdl-typography--body-1 a'
   );
-  return [...searches].map((item) => {
+  // const logFirstChildNodeUndefined = [...searches].find((item) => {
+  //   const {childNodes} = item.parentNode;
+  //   return childNodes[3] === undefined;
+  // });
+  // console.log(logFirstChildNodeUndefined);
+  return [...searches].filter((item) => {
+    const {childNodes} = item.parentNode;
+    return childNodes[0] !== undefined && childNodes[1] !== undefined && childNodes[3] !== undefined;
+  }).map((item) => {
       return {
         type: item.parentNode.childNodes[0].textContent,
         query: item.parentNode.childNodes[1].textContent,
@@ -111,7 +123,7 @@ const filterQueriesFromHtml = (content, presentationDate, namesToFilter) => {
       return item.type.charAt(0) === 'S';
     }).map((item) => {
       return {
-        query: item.query,
+        query: item.query.replaceAll('"', ''),
         date: item.date
       }
     }).filter((item) => {
