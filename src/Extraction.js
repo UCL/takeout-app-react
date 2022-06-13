@@ -110,7 +110,9 @@ class ExtractionComponent extends React.Component {
       success: false,
       loading: false,
       presentationDate: new Date(),
-      namesToFilter: ''
+      namesToFilter: '',
+      takeoutQueries: [],
+      takeoutDateFirstQuery: undefined
   }
 
   filterWebWorker = (event) => {
@@ -298,15 +300,17 @@ class ExtractionComponent extends React.Component {
               Report
             </Typography>
             <Typography variant="body1" align="left">
+              Number of queries in Takeout: {takeoutQueries.length}
+            </Typography>
+            <Typography variant="body1" align="left">
               Number of queries selected: {filteredQueries.length}
+            </Typography>
+            <Typography variant="body1" align="left">
+              Date of first query in Takeout: {formatDate(takeoutDateFirstQuery)}
             </Typography>
             <Typography variant="body1" align="left" gutterBottom>
               Date of first presentation: {formatDate(presentationDate)}
             </Typography>
-            <ReportQueries
-              className={classes.paper}
-              filteredQueries={filteredQueries}
-            />
             <Typography variant="body1" align="left" gutterBottom style={{marginTop: `2em`}}>
               Clicking on "Download filtered queries" will generate a CSV file with the filtered
               queries.
