@@ -266,7 +266,7 @@ class ExtractionComponent extends React.Component {
           </div>
           <div>
             <input
-              accept="application/zip, application/json"
+              accept="application/zip, application/json, text/html"
               className={classes.input}
               id="takeout-input"
               type="file"
