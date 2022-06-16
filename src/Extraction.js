@@ -28,8 +28,6 @@ import withStyles from '@material-ui/core/styles/withStyles';
 // eslint-disable-next-line import/no-webpack-loader-syntax
 import Worker from "worker-loader!./filterWorker";
 
-import {ReportQueries} from './ReportQueries';
-
 const styles = (theme) => ({
   input: {
     display: 'none'
@@ -111,8 +109,8 @@ class ExtractionComponent extends React.Component {
       loading: false,
       presentationDate: new Date(),
       namesToFilter: '',
-      takeoutQueries: [],
-      takeoutDateFirstQuery: undefined
+      takeoutQueries: 0,
+      takeoutDateFirstQuery: new Date()
   }
 
   filterWebWorker = (event) => {
@@ -133,6 +131,8 @@ class ExtractionComponent extends React.Component {
         this.setState({
           success: true,
           filteredQueries: msg.result,
+          takeoutQueries: msg.totalUnfiltered,
+          takeoutDateFirstQuery: new Date(msg.firstQueryDate),
           displayReport: true
         });
       }
@@ -190,7 +190,9 @@ class ExtractionComponent extends React.Component {
       missingActivityJson,
       presentationDate,
       success,
-      namesToFilter
+      namesToFilter,
+      takeoutQueries,
+      takeoutDateFirstQuery
     } = this.state;
 
     const downloadUrl = generateDownloadUrl(filteredQueries);
@@ -300,7 +302,7 @@ class ExtractionComponent extends React.Component {
               Report
             </Typography>
             <Typography variant="body1" align="left">
-              Number of queries in Takeout: {takeoutQueries.length}
+              Number of queries in Takeout: {takeoutQueries}
             </Typography>
             <Typography variant="body1" align="left">
               Number of queries selected: {filteredQueries.length}

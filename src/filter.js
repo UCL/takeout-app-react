@@ -58,7 +58,6 @@ const binarySearch = (word) => {
 
 const binaryContainsTerm = (searchTerms, query) => {
   const ngrams = extractWordNGrams(query);
-  console.log(ngrams);
   return ngrams.some((word) => binarySearch(word));
 }
 
@@ -143,11 +142,12 @@ const firstQueryDateFromJson = (jsonString) => {
     .filter((item) => {
       return item.title.startsWith('Searched for ')
     }).map((item) => {
-      return item.time
+      return Date.parse(item.time);
     }).reduce((a,b) => a < b ? a : b);
 };
 
 const totalQueriesFromHtml = (content) => {
+  const doc = parse(content);
   const searches = doc.querySelectorAll(
     'div.content-cell.mdl-cell.mdl-cell--6-col.mdl-typography--body-1 a'
   );
@@ -160,6 +160,7 @@ const totalQueriesFromHtml = (content) => {
 };
 
 const firstQueryDateFromHtml = (content) => {
+  const doc = parse(content);
   const searches = doc.querySelectorAll(
     'div.content-cell.mdl-cell.mdl-cell--6-col.mdl-typography--body-1 a'
   );

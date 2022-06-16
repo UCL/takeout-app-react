@@ -4,7 +4,7 @@ const response = {
   success: false,
   result: [],
   totalUnfiltered: 0,
-  firstQueryDate: undefined
+  firstQueryDate: new Date()
 };
 
 onmessage = (e) => {
@@ -16,8 +16,8 @@ onmessage = (e) => {
 
     if (undefined !== filtered || filtered.length > 0) {
       response.result = filtered;
-      response.totalUnfiltered = totalUnfiltered,
-      response.firstQueryDate = firstQueryDate
+      response.totalUnfiltered = totalUnfiltered;
+      response.firstQueryDate = firstQueryDate;
     }
     postMessage(response);
   }
