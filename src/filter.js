@@ -58,7 +58,6 @@ const binarySearch = (word) => {
 
 const binaryContainsTerm = (searchTerms, query) => {
   const ngrams = extractWordNGrams(query);
-  console.log(ngrams);
   return ngrams.some((word) => binarySearch(word));
 }
 
@@ -131,6 +130,55 @@ const filterQueriesFromHtml = (content, presentationDate, namesToFilter) => {
     });
 };
 
+const totalQueriesFromJson = (jsonString) => {
+  return JSON.parse(jsonString)
+    .filter((item) => {
+      return item.title.startsWith('Searched for ')
+    }).length;
+};
+
+const firstQueryDateFromJson = (jsonString) => {
+  return JSON.parse(jsonString)
+    .filter((item) => {
+      return item.title.startsWith('Searched for ')
+    }).map((item) => {
+      return Date.parse(item.time);
+    }).reduce((a,b) => a < b ? a : b);
+};
+
+const totalQueriesFromHtml = (content) => {
+  const doc = parse(content);
+  const searches = doc.querySelectorAll(
+    'div.content-cell.mdl-cell.mdl-cell--6-col.mdl-typography--body-1 a'
+  );
+  return [...searches].filter((item) => {
+    const {childNodes} = item.parentNode;
+    return childNodes[0] !== undefined && childNodes[1] !== undefined && childNodes[3] !== undefined;
+  }).filter((item) => {
+    return item.parentNode.childNodes[0].textContent.charAt(0) === 'S';
+  }).length;
+};
+
+const firstQueryDateFromHtml = (content) => {
+  const doc = parse(content);
+  const searches = doc.querySelectorAll(
+    'div.content-cell.mdl-cell.mdl-cell--6-col.mdl-typography--body-1 a'
+  );
+  return [...searches].filter((item) => {
+    const {childNodes} = item.parentNode;
+    return childNodes[0] !== undefined && childNodes[1] !== undefined && childNodes[3] !== undefined;
+  }).map((item) => {
+      return {
+        type: item.parentNode.childNodes[0].textContent,
+        date: item.parentNode.childNodes[3].textContent
+      };
+    }).filter((item) => {
+      return item.type.charAt(0) === 'S';
+    }).map((item) => {
+      return item.date
+    }).reduce((a,b) => a < b ? a : b);
+};
+
 const readZipContent = async (file) => {
   const jszip = await JSZip.loadAsync(file);
   const zipobj = await jszip.file(
@@ -145,19 +193,25 @@ export const filterQueries = (data, workerCallback) => {
   if (file.type === 'application/json') {
     const reader = new FileReader();
     reader.onload = () => {
+      const { result } = reader;
       const filteredQueries = filterQueriesFromJson(
-        reader.result, presentationDate, namesToFilter
+        result, presentationDate, namesToFilter
       );
-      workerCallback(filteredQueries);
+      const totalQueries = totalQueriesFromJson(result);
+      const firstQueryDate = firstQueryDateFromJson(result);
+      workerCallback(filteredQueries, totalQueries, firstQueryDate);
     }
     reader.readAsText(file);
   } else if (file.type === 'text/html') {
     const reader = new FileReader();
     reader.onload = () => {
+      const { result } = reader;
       const filteredQueries = filterQueriesFromHtml(
-        reader.result, presentationDate, namesToFilter
+        result, presentationDate, namesToFilter
       );
-      workerCallback(filteredQueries);
+      const totalQueries = totalQueriesFromHtml(result);
+      const firstQueryDate = firstQueryDateFromHtml(result);
+      workerCallback(filteredQueries, totalQueries, firstQueryDate);
     }
     reader.readAsText(file);
   } else if (file.type === 'application/zip') {
@@ -173,14 +227,18 @@ export const filterQueries = (data, workerCallback) => {
             const filteredQueries = filterQueriesFromHtml(
               data, presentationDate, namesToFilter
             );
-            workerCallback(filteredQueries);
+            const totalQueries = totalQueriesFromHtml(data);
+            const firstQueryDate = firstQueryDateFromHtml(data);
+            workerCallback(filteredQueries, totalQueries, firstQueryDate);
           });
         } else if (fileName.endsWith('json')) {
           content.then((data) => {
             const filteredQueries = filterQueriesFromJson(
               data, presentationDate, namesToFilter
             );
-            workerCallback(filteredQueries);
+            const totalQueries = totalQueriesFromJson(data);
+            const firstQueryDate = firstQueryDateFromJson(data);
+            workerCallback(filteredQueries, totalQueries, firstQueryDate);
           });
         }
       });

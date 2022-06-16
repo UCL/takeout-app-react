@@ -28,8 +28,6 @@ import withStyles from '@material-ui/core/styles/withStyles';
 // eslint-disable-next-line import/no-webpack-loader-syntax
 import Worker from "worker-loader!./filterWorker";
 
-import {ReportQueries} from './ReportQueries';
-
 const styles = (theme) => ({
   input: {
     display: 'none'
@@ -110,7 +108,9 @@ class ExtractionComponent extends React.Component {
       success: false,
       loading: false,
       presentationDate: new Date(),
-      namesToFilter: ''
+      namesToFilter: '',
+      takeoutQueries: 0,
+      takeoutDateFirstQuery: new Date()
   }
 
   filterWebWorker = (event) => {
@@ -131,6 +131,8 @@ class ExtractionComponent extends React.Component {
         this.setState({
           success: true,
           filteredQueries: msg.result,
+          takeoutQueries: msg.totalUnfiltered,
+          takeoutDateFirstQuery: new Date(msg.firstQueryDate),
           displayReport: true
         });
       }
@@ -188,7 +190,9 @@ class ExtractionComponent extends React.Component {
       missingActivityJson,
       presentationDate,
       success,
-      namesToFilter
+      namesToFilter,
+      takeoutQueries,
+      takeoutDateFirstQuery
     } = this.state;
 
     const downloadUrl = generateDownloadUrl(filteredQueries);
@@ -298,15 +302,17 @@ class ExtractionComponent extends React.Component {
               Report
             </Typography>
             <Typography variant="body1" align="left">
+              Number of queries in Takeout: {takeoutQueries}
+            </Typography>
+            <Typography variant="body1" align="left">
               Number of queries selected: {filteredQueries.length}
+            </Typography>
+            <Typography variant="body1" align="left">
+              Date of first query in Takeout: {formatDate(takeoutDateFirstQuery)}
             </Typography>
             <Typography variant="body1" align="left" gutterBottom>
               Date of first presentation: {formatDate(presentationDate)}
             </Typography>
-            <ReportQueries
-              className={classes.paper}
-              filteredQueries={filteredQueries}
-            />
             <Typography variant="body1" align="left" gutterBottom style={{marginTop: `2em`}}>
               Clicking on "Download filtered queries" will generate a CSV file with the filtered
               queries.
