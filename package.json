@@ -13,7 +13,7 @@
     "node-html-parser": "^5.2.0",
     "react": "17.0.1",
     "react-dom": "17.0.1",
-    "react-scripts": "^4.0.1",
+    "react-scripts": "^5.0.1",
     "typeface-roboto": "1.1.13",
     "worker-loader": "^3.0.6"
   },
